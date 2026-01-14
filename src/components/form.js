@@ -6,11 +6,30 @@ const Form = () => {
   // state untuk form
   const [name, setName] = useState("state kosong");
   const [email, setEmail] = useState("email@boongan.com");
+  const [errors, setErrors] = useState({ email: "" });
 
+  const validate = () => {
+    let emailError = "";
+    if (!email.includes("@")) {
+      emailError = "invalid";
+      console.log("validate email");
+    }
+    setErrors({ email: emailError });
+
+    return emailError === "";
+  };
+
+  console.log("error", errors);
   // function handle submit
   const handleSubmit = (event) => {
     // event prevent default supaya ketika klik tidak reload halaman
     event.preventDefault();
+
+    // kita validate email dahulu
+    if (validate()) {
+      console.log("validate submit");
+      alert("submit email");
+    }
     console.log("submit test", name, email);
     // mengembalikan state menjadi kosong seperti awal
     setName("");
