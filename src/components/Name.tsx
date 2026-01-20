@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 // Cara #1
 // function Name({ instructor }: { instructor: string }) {
 
-// Cara #2
+// Cara #2 biasanya digunakan lebih dari 2 props
 // interface IProps {
 //   instructor: string;
 // }
@@ -20,8 +20,14 @@ import { useEffect, useState } from "react";
 // const Name: React.FC<IProps> = ({ instructor }) => {
 
 // pilih manapun tidak masalah, karena semua codingan TS akan di compile kembali menjadi JS
-function Name({ instructor }: any) {
+
+interface IProps {
+  instructor?: string;
+  click: () => void; // karena tidak ada return, kasih void
+}
+function Name({ instructor = "tes", click }: IProps) {
   const [name, setName] = useState("");
+
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setName(event.target.value);
   };
