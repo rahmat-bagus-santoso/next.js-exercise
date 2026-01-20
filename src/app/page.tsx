@@ -34,3 +34,5 @@ export default function Home() {
     </>
   );
 }
+
+// post/100/comment/1
