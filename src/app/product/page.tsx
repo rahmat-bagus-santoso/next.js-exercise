@@ -1,5 +1,6 @@
 "use client";
 import axios from "axios";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 
 function page() {
@@ -9,6 +10,19 @@ function page() {
     formState: { errors },
   } = useForm();
 
+  const [product, setProduct] = useState<any>({});
+
+  // get data using axios read, GET
+  useEffect(() => {
+    const fetchData = async () => {
+      const response: any = await axios.get("https://dummyjson.com/posts");
+      setProduct(response.data.posts);
+    };
+    fetchData();
+  }, []);
+  console.log("response", product);
+
+  // submit form using axios post, POST
   const onSubmitForm = async (data: any) => {
     console.log("useForm", data);
 
