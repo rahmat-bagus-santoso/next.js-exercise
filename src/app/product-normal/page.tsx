@@ -1,92 +1,81 @@
 "use client";
-import React, { useState } from "react";
+import { useForm, SubmitHandler } from "react-hook-form";
 
-// 1. Define the shape of your form fields
+// 1. Define the shape of your form
 interface IProductForm {
   name: string;
   notes: string;
   email: string;
 }
 
-// 2. Define the shape of your errors (keys match fields, values are strings)
-type FormErrors = Partial<Record<keyof IProductForm, string>>;
-
 function Page() {
-  const [formData, setFormData] = useState<IProductForm>({
-    name: "",
-    notes: "",
-    email: "",
-  });
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<IProductForm>();
 
-  const [errors, setErrors] = useState<FormErrors>({});
+  // 2. Updated onSubmit with native fetch
+  const onSubmitForm: SubmitHandler<IProductForm> = async (data) => {
+    try {
+      console.log("Submitting data:", data);
 
-  // Type the change event for HTML Input elements
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
+      const response = await fetch("https://dummyjson.com/products/add", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data), // Manual stringify required for fetch
+      });
 
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
+      // Fetch doesn't throw on 4xx/5xx errors, so we check response.ok
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
 
-  const validate = (): boolean => {
-    let tempErrors: FormErrors = {};
-
-    if (!formData.name) tempErrors.name = "required input namanyaaa";
-    if (!formData.notes) tempErrors.notes = "required input notes";
-
-    const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/i;
-    if (!formData.email) {
-      tempErrors.email = "required email notes";
-    } else if (!emailPattern.test(formData.email)) {
-      tempErrors.email = "invalid email format";
-    }
-
-    setErrors(tempErrors);
-    return Object.keys(tempErrors).length === 0;
-  };
-
-  // Type the form submission event
-  const onSubmitForm = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (validate()) {
-      console.log("useState Form Data:", formData);
-    } else {
-      console.log("Validation Failed");
+      const result = await response.json(); // Manual JSON parsing required
+      console.log("Response Success:", result);
+    } catch (error) {
+      console.error("Fetch error:", error);
     }
   };
 
   return (
     <div>
-      <h1>page product (useState + TS)</h1>
+      <h1>Page Product</h1>
 
-      <form onSubmit={onSubmitForm}>
+      <form onSubmit={handleSubmit(onSubmitForm)}>
         <input
-          name="name"
-          value={formData.name}
-          onChange={handleChange}
+          {...register("name", { required: "Name is required" })}
           placeholder="name"
         />
-        {errors.name && <div style={{ color: "red" }}>{errors.name}</div>}
+        {errors.name && (
+          <div style={{ color: "red" }}>{errors.name.message}</div>
+        )}
 
         <input
-          name="notes"
-          value={formData.notes}
-          onChange={handleChange}
+          {...register("notes", { required: "Notes are required" })}
           placeholder="notes"
         />
-        {errors.notes && <div style={{ color: "red" }}>{errors.notes}</div>}
+        {errors.notes && (
+          <div style={{ color: "red" }}>{errors.notes.message}</div>
+        )}
 
         <input
-          name="email"
-          value={formData.email}
-          onChange={handleChange}
+          {...register("email", {
+            required: "Email is required",
+            pattern: {
+              value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/i,
+              message: "Invalid email format",
+            },
+          })}
           placeholder="email"
         />
-        {errors.email && <div style={{ color: "red" }}>{errors.email}</div>}
+        {errors.email && (
+          <div style={{ color: "red" }}>{errors.email.message}</div>
+        )}
 
-        <button type="submit">submittttt</button>
+        <button type="submit">Submit</button>
       </form>
     </div>
   );

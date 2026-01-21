@@ -1,4 +1,5 @@
 "use client";
+import axios from "axios";
 import { useForm } from "react-hook-form";
 
 function page() {
@@ -10,6 +11,13 @@ function page() {
 
   const onSubmitForm = async (data: any) => {
     console.log("useForm", data);
+
+    const response = await axios.post(
+      "https://dummyjson.com/products/add",
+      data,
+    );
+
+    console.log("response", response.data);
   };
   return (
     <div>
