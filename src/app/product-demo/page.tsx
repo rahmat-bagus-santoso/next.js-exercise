@@ -55,7 +55,7 @@ export default function ProductDemoPage() {
       const response = await axios.post(API_URL, data);
       setProducts([...products, response.data]);
       setShowForm(false);
-      alert("Product added!");
+      alert("Product added successfully");
     } catch (error) {
       console.error("Failed to create:", error);
       alert("Failed to add product");
@@ -74,7 +74,7 @@ export default function ProductDemoPage() {
       setProducts(products.map((p) => (p.id === editingProduct.id ? response.data : p)));
       setShowForm(false);
       setEditingProduct(null);
-      alert("Product updated!");
+      alert("Product updated successfully");
     } catch (error) {
       console.error("Failed to update:", error);
       alert("Failed to update product");
@@ -85,12 +85,11 @@ export default function ProductDemoPage() {
 
   // DELETE - remove product
   const deleteProduct = async (id: string) => {
-    if (!window.confirm("Delete this product?")) return;
+    if (!window.confirm("Are you sure you want to delete this product?")) return;
 
     try {
       await axios.delete(`${API_URL}/${id}`);
       setProducts(products.filter((p) => p.id !== id));
-      alert("Product deleted!");
     } catch (error) {
       console.error("Failed to delete:", error);
       alert("Failed to delete product");
@@ -123,43 +122,80 @@ export default function ProductDemoPage() {
     setEditingProduct(null);
   };
 
+  // Calculate simple stats
+  const totalValue = products.reduce((sum, p) => sum + parseFloat(p.price || "0"), 0);
+
   // ===========================================
   // Render
   // ===========================================
   return (
-    <div className="min-h-screen bg-gray-900 text-white">
-      <div className="max-w-4xl mx-auto p-6">
-        {/* Header */}
-        <h1 className="text-3xl font-bold mb-2">Product Demo</h1>
-        <p className="text-gray-400 mb-6">CRUD with Next.js + Axios + React Hook Form</p>
+    <div className="min-h-screen bg-zinc-950 text-zinc-100 font-sans selection:bg-indigo-500/30">
+      <div className="max-w-5xl mx-auto p-8">
 
-        {/* Add button - hide when form is open */}
+        {/* Header Section */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between mb-10 gap-4">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight text-white mb-1">
+              Product Dashboard
+            </h1>
+            <p className="text-zinc-400 text-sm">
+              Manage your inventory and pricing
+            </p>
+          </div>
+
+          {/* Stats Summary */}
+          <div className="flex gap-6 bg-zinc-900/50 p-4 rounded-xl border border-zinc-800/50 backdrop-blur-sm">
+            <div>
+              <p className="text-xs text-zinc-500 uppercase font-semibold tracking-wider">Total Products</p>
+              <p className="text-xl font-bold text-white">{products.length}</p>
+            </div>
+            <div className="w-px bg-zinc-800"></div>
+            <div>
+              <p className="text-xs text-zinc-500 uppercase font-semibold tracking-wider">Total Value</p>
+              <p className="text-xl font-bold text-indigo-400">
+                ${totalValue.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Action Bar */}
         {!showForm && (
-          <button
-            onClick={handleAddNew}
-            className="mb-6 bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg"
-          >
-            + Add Product
-          </button>
+          <div className="mb-8 flex justify-end">
+            <button
+              onClick={handleAddNew}
+              className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-2.5 rounded-lg font-medium transition-all shadow-lg shadow-indigo-900/20 hover:shadow-indigo-900/40 active:scale-95"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="16" /><line x1="8" y1="12" x2="16" y2="12" /></svg>
+              Add New Product
+            </button>
+          </div>
         )}
 
-        {/* Form - show/hide based on state */}
+        {/* Form Section - sleek card design */}
         {showForm && (
-          <ProductForm
-            onSubmit={handleSubmit}
-            editingProduct={editingProduct}
-            onCancel={handleCancel}
-            isSubmitting={submitting}
-          />
+          <div className="mb-8 p-1">
+            <ProductForm
+              onSubmit={handleSubmit}
+              editingProduct={editingProduct}
+              onCancel={handleCancel}
+              isSubmitting={submitting}
+            />
+          </div>
         )}
 
-        {/* Product list */}
+        {/* Product List */}
         <ProductList
           products={products}
           loading={loading}
           onEdit={handleEdit}
           onDelete={deleteProduct}
         />
+
+        {/* Footer */}
+        <div className="mt-12 pt-8 border-t border-zinc-900 text-center text-zinc-600 text-sm">
+          <p>Next.js CRUD Demo • MockAPI • Tailwind CSS</p>
+        </div>
       </div>
     </div>
   );
